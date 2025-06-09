@@ -1,0 +1,7 @@
+# Projet renommé : ia-video-labeller
+output/
+videos/
+*.pyc
+__pycache__/
+.env
+*.log

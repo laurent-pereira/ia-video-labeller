@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  ia-video-labeller:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ia-video-labeller
+    volumes:
+      - ./videos:/app/videos
+      - ./output:/app/output
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=${DISPLAY}
+    tty: true
+    stdin_open: true
