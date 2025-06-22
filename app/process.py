@@ -1,12 +1,14 @@
 import cv2
 from pathlib import Path
 from ultralytics import YOLO
+import torch
 
 VIDEOS_DIR = Path("videos")
 OUTPUT_DIR = Path("output")
 FRAME_STEP = 10
 CONFIDENCE_THRESHOLD = 0.3
-YOLO_MODEL = "yolov8n.pt"
+#YOLO_MODEL = "yolov8n.pt"
+YOLO_MODEL = "./models/yolov8-fish.pt"
 SHOW_PREVIEW = False
 
 model = YOLO(YOLO_MODEL)
@@ -56,11 +58,15 @@ def process_video(video_path: Path):
                     cv2.putText(frame, label, (int(x1), int(y1)-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
 
             if detections:
-                name = f"{video_name}_frame_{saved_idx:04d}"
-                cv2.imwrite(str(images_dir / f"{name}.jpg"), frame)
-                save_yolo_txt(labels_dir / f"{name}.txt", detections, w, h)
-                print(f"✅ {name}.jpg enregistré ({len(detections)} objets) : {', '.join(detected_labels)}")
-                saved_idx += 1
+                name = f"{video_name}_i{frame_idx}"
+                image_path = images_dir / f"{name}.jpg"
+                if image_path.exists():
+                    print(f"⏩ {name}.jpg déjà présent, passage à la frame suivante.")
+                else:
+                    cv2.imwrite(str(image_path), frame)
+                    save_yolo_txt(labels_dir / f"{name}.txt", detections, w, h)
+                    print(f"✅ {name}.jpg enregistré ({len(detections)} objets) : {', '.join(detected_labels)}")
+                    saved_idx += 1
             else:
                 print(f"⛔ frame {frame_idx}: aucune détection")
 
@@ -79,7 +85,7 @@ def process_video(video_path: Path):
         cv2.destroyAllWindows()
 
 def main():
-    videos = list(VIDEOS_DIR.glob("*.mp4")) + list(VIDEOS_DIR.glob("*.avi")) + list(VIDEOS_DIR.glob("*.mov"))
+    videos = list(VIDEOS_DIR.glob("*.MP4")) + list(VIDEOS_DIR.glob("*.mp4")) + list(VIDEOS_DIR.glob("*.avi")) + list(VIDEOS_DIR.glob("*.mov"))
     if not videos:
         print("❌ Aucune vidéo trouvée dans le dossier 'videos/'")
         return
